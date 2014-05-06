@@ -4,7 +4,7 @@
 
     <groupId>org.liquibase</groupId>
     <artifactId>liquibase-parent</artifactId>
-    <version>3.1.1</version>
+    <version>3.1.1-J-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Liquibase Parent Configuration</name>
@@ -316,19 +316,16 @@
     </reporting>
 
     <distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Production Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-
-        </repository>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sontatype Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
+      <repository>
+        <id>junbo-snapshots</id>
+        <name>Junbo Snapshots</name>
+        <url>https://aws-artifactory:8443/artifactory/ext-snapshot-local</url>
+      </repository>
+      <snapshotRepository>
+        <id>junbo-snapshots</id>
+        <name>Junbo Snapshots</name>
+        <url>https://aws-artifactory:8443/artifactory/ext-snapshot-local</url>
+      </snapshotRepository>
     </distributionManagement>
 
     <profiles>

@@ -12,3 +12,4 @@ liquibase.integrationtest.local.properties
 /.idea
 *.iml
 .DS_Store
+*.log
