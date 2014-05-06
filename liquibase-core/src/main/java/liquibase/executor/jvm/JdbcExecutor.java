@@ -1,20 +1,20 @@
 package liquibase.executor.jvm;
 
-import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.OfflineConnection;
 import liquibase.database.PreparedStatementFactory;
 import liquibase.database.core.OracleDatabase;
+import liquibase.database.core.PostgresDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.executor.AbstractExecutor;
 import liquibase.executor.Executor;
 import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
-import liquibase.sql.UnparsedSql;
 import liquibase.sql.visitor.SqlVisitor;
-import liquibase.statement.*;
-import liquibase.statement.core.RawSqlStatement;
+import liquibase.statement.CallableSqlStatement;
+import liquibase.statement.ExecutablePreparedStatement;
+import liquibase.statement.SqlStatement;
 import liquibase.util.JdbcUtils;
 import liquibase.util.StringUtils;
 
@@ -246,6 +246,13 @@ public class JdbcExecutor extends AbstractExecutor implements Executor {
         LogFactory.getLogger().debug(message);
     }
 
+    protected void prepare() throws SQLException {
+        if (database instanceof PostgresDatabase) {
+            Statement stmt = ((JdbcConnection)database.getConnection()).getUnderlyingConnection().createStatement();
+            stmt.execute("SET SCHEMA '" + database.getDefaultSchemaName() + "'");
+        }
+    }
+
     /**
      * Adapter to enable use of a RowCallbackHandler inside a ResultSetExtractor.
      * <p>Uses a regular ResultSet, so we have to be careful when using it:
@@ -291,6 +298,7 @@ public class JdbcExecutor extends AbstractExecutor implements Executor {
                     stmt.setEscapeProcessing(false);
                 }
                 try {
+                    prepare();
                     stmt.execute(statement);
                 } catch (SQLException e) {
                     throw e;
@@ -329,6 +337,7 @@ public class JdbcExecutor extends AbstractExecutor implements Executor {
                 }
                 log.debug("Executing QUERY database command: "+sqlToExecute[0]);
 
+                prepare();
                 rs = stmt.executeQuery(sqlToExecute[0]);
                 ResultSet rsToUse = rs;
                 return rse.extractData(rsToUse);
@@ -360,6 +369,7 @@ public class JdbcExecutor extends AbstractExecutor implements Executor {
         public Object doInCallableStatement(CallableStatement cs) throws SQLException, DatabaseException {
             ResultSet rs = null;
             try {
+                prepare();
                 rs = cs.executeQuery();
                 return rse.extractData(rs);
             }

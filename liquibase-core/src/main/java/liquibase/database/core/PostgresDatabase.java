@@ -1,20 +1,17 @@
 package liquibase.database.core;
 
-import liquibase.CatalogAndSchema;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.ObjectQuotingStrategy;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.structure.DatabaseObject;
 import liquibase.exception.DatabaseException;
 import liquibase.executor.ExecutorService;
 import liquibase.logging.LogFactory;
 import liquibase.statement.core.RawSqlStatement;
+import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Table;
 import liquibase.util.StringUtils;
 
 import java.math.BigInteger;
-import java.sql.Types;
 import java.util.*;
 
 /**
@@ -235,7 +232,7 @@ public class PostgresDatabase extends AbstractJdbcDatabase {
 
     @Override
     protected String getConnectionSchemaName() {
-        return "public";
+        return this.defaultSchemaName;
     }
 
     private boolean catalogExists(String catalogName) throws DatabaseException {
