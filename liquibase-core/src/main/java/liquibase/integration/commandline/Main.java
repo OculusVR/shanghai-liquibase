@@ -83,6 +83,11 @@ public class Main {
 
     protected Map<String, Object> changeLogParameters = new HashMap<String, Object>();
 
+    //to avoid System.exit() after one thread done
+    protected static boolean runByJunbo;
+    //to avoid ServiceLocator reset which causes thread-safe problem
+    protected static boolean isConfigured;
+
     public static void main(String args[]) throws CommandLineParsingException, IOException {
         try {
             String shouldRunProperty = System.getProperty(Liquibase.SHOULD_RUN_SYSTEM_PROPERTY);
@@ -148,7 +153,7 @@ public class Main {
             }
 
             if ("update".equals(main.command)) {
-                System.err.println("Liquibase Update Successful");
+                System.err.println("Liquibase Update Successful for " + main.defaultSchemaName);
             } else if (main.command.startsWith("rollback") && !main.command.endsWith("SQL")) {
                 System.err.println("Liquibase Rollback Successful");
             } else if (!main.command.endsWith("SQL")) {
@@ -164,7 +169,9 @@ public class Main {
             }
             System.exit(-3);
         }
-        System.exit(0);
+        if (!runByJunbo) {
+            System.exit(0);
+        }
     }
 
     private static String generateLogLevelWarningMessage() {
@@ -236,7 +243,7 @@ public class Main {
             || "calculateCheckSum".equalsIgnoreCase(command)
             || "dbDoc".equalsIgnoreCase(command)
             || "tag".equalsIgnoreCase(command)) {
-            
+
             if (commandParams.size() > 0 && commandParams.iterator().next().startsWith("-")) {
                 messages.add("unexpected command parameters: "+commandParams);
             }
@@ -261,7 +268,7 @@ public class Main {
                 }
             }
         }
-        
+
     }
 
     private void validateCommandParameters(final List<String> messages) {
@@ -710,8 +717,9 @@ public class Main {
                 }
             });
         }
-
-        ServiceLocator.getInstance().setResourceAccessor(new ClassLoaderResourceAccessor(classLoader));
+        if (!isConfigured) {
+            ServiceLocator.getInstance().setResourceAccessor(new ClassLoaderResourceAccessor(classLoader));
+        }
         Thread.currentThread().setContextClassLoader(classLoader);
     }
 
@@ -785,7 +793,7 @@ public class Main {
 
         FileSystemResourceAccessor fsOpener = new FileSystemResourceAccessor();
         CommandLineResourceAccessor clOpener = new CommandLineResourceAccessor(classLoader);
-        Database database = CommandLineUtils.createDatabaseObject(classLoader, this.url, 
+        Database database = CommandLineUtils.createDatabaseObject(classLoader, this.url,
             this.username, this.password, this.driver, this.defaultCatalogName,this.defaultSchemaName,  Boolean.parseBoolean(outputDefaultCatalog), Boolean.parseBoolean(outputDefaultSchema), this.databaseClass, this.driverPropertiesFile, null, null);
         try {
 
