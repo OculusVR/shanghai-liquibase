@@ -6,7 +6,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -72,50 +71,21 @@ public class JunboMain {
 
                 // configure first to avoid thread-safe problems
                 if (notConfigured) {
-                    Main main = new Main();
-                    main.parseOptions(liquibaseArgs.toArray(new String[0]));
-
-                    File propertiesFile = new File(main.defaultsFile);
-                    File localPropertiesFile = new File(main.defaultsFile.replaceFirst("(\\.[^\\.]+)$", ".local$1"));
-
-                    if (localPropertiesFile.exists()) {
-                        main.parsePropertiesFile(new FileInputStream(localPropertiesFile));
-                    }
-                    if (propertiesFile.exists()) {
-                        main.parsePropertiesFile(new FileInputStream(propertiesFile));
-                    }
-
-                    List<String> setupMessages = main.checkSetup();
-                    if (setupMessages.size() > 0) {
-                        main.printHelp(setupMessages, System.err);
-                        return;
-                    }
-
-                    try {
-                        main.applyDefaults();
-                        main.configureClassLoader();
-                    } catch (Throwable e) {
-                        String message = e.getMessage();
-                        if (message == null) {
-                            message = "Unknown Reason";
-                        }
-                        throw new RuntimeException(message);
-                    }
-
+                    Main.main(liquibaseArgs.toArray(new String[0]));
                     notConfigured = false;
                     Main.isConfigured = true;
-                }
-
-                threadPool.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Main.main(liquibaseArgs.toArray(new String[0]));
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                } else {
+                    threadPool.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Main.main(liquibaseArgs.toArray(new String[0]));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
 
