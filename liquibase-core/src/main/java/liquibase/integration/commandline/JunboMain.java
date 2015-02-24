@@ -19,9 +19,20 @@ import java.util.concurrent.TimeUnit;
  */
 public class JunboMain {
     public static void main(String[] args) throws ConfigurationException, IOException, CommandLineParsingException, InterruptedException {
-        if (args.length > 3 || args.length < 2) {
+        if (args.length > 4 || args.length < 2) {
             printUsage();
             return;
+        }
+
+        boolean debug = false;
+        String tenantSuffix = "";
+        for (int i = 2; i < args.length; i++) {
+            if (args[i].equalsIgnoreCase("--debug")) {
+                debug = true;
+            } else if (args[i].startsWith("-tenant:")) {
+                tenantSuffix = "_" + args[i].substring(8);
+                System.out.println("Tenant specified, dbName will be suffixed with: " + tenantSuffix);
+            }
         }
 
         String env = args[0];
@@ -62,9 +73,9 @@ public class JunboMain {
                 liquibaseArgs.add("--changeLogFile=" + "changelogs/silkcloud/" + changeLogFileName);
                 liquibaseArgs.add("--username=" + username);
                 liquibaseArgs.add("--password=" + password);
-                liquibaseArgs.add("--url=" + jdbcUrlAndSchema[0]);
+                liquibaseArgs.add("--url=" + jdbcUrlAndSchema[0] + tenantSuffix);
                 liquibaseArgs.add("--defaultSchemaName=" + jdbcUrlAndSchema[1]);
-                if (args.length == 3 && args[2].equalsIgnoreCase("--debug")) {
+                if (debug) {
                     liquibaseArgs.add("--logLevel=debug");
                 }
                 liquibaseArgs.add("update");
@@ -95,6 +106,6 @@ public class JunboMain {
     }
 
     private static void printUsage() {
-        System.out.println("<env> <key> [--debug]");
+        System.out.println("<env> <key> [--debug] [-tenant:tenantName]");
     }
 }

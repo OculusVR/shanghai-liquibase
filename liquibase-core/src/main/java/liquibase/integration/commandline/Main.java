@@ -153,7 +153,7 @@ public class Main {
             }
 
             if ("update".equals(main.command)) {
-                System.err.println("Liquibase Update Successful for " + main.defaultSchemaName);
+                System.err.println("Liquibase Update Successful for " + main.defaultSchemaName + " in " + main.url);
             } else if (main.command.startsWith("rollback") && !main.command.endsWith("SQL")) {
                 System.err.println("Liquibase Rollback Successful");
             } else if (!main.command.endsWith("SQL")) {
