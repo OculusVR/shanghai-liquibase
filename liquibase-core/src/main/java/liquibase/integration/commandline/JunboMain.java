@@ -25,13 +25,13 @@ public class JunboMain {
         }
 
         boolean debug = false;
-        String tenantSuffix = "";
+        String tenantPrefix = "";
         for (int i = 2; i < args.length; i++) {
             if (args[i].equalsIgnoreCase("--debug")) {
                 debug = true;
             } else if (args[i].startsWith("-tenant:")) {
-                tenantSuffix = "_" + args[i].substring(8);
-                System.out.println("Tenant specified, dbName will be suffixed with: " + tenantSuffix);
+                tenantPrefix = args[i].substring(8) + "_";
+                System.out.println("Tenant specified, schema will be prefixed with: " + tenantPrefix);
             }
         }
 
@@ -73,8 +73,8 @@ public class JunboMain {
                 liquibaseArgs.add("--changeLogFile=" + "changelogs/silkcloud/" + changeLogFileName);
                 liquibaseArgs.add("--username=" + username);
                 liquibaseArgs.add("--password=" + password);
-                liquibaseArgs.add("--url=" + jdbcUrlAndSchema[0] + tenantSuffix);
-                liquibaseArgs.add("--defaultSchemaName=" + jdbcUrlAndSchema[1]);
+                liquibaseArgs.add("--url=" + jdbcUrlAndSchema[0]);
+                liquibaseArgs.add("--defaultSchemaName=" + tenantPrefix + jdbcUrlAndSchema[1]);
                 if (debug) {
                     liquibaseArgs.add("--logLevel=debug");
                 }
