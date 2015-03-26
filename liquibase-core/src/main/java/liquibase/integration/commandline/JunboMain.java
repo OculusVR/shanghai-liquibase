@@ -40,6 +40,7 @@ public class JunboMain {
         if (!confDir.exists() || !confDir.isDirectory()) {
             throw new RuntimeException("env " + env + " conf not found");
         }
+        System.setProperty("env", env);
 
         ExecutorService threadPool = Executors.newFixedThreadPool(10);
         AESCipher aesCipher = new AESCipher(args[1]);
